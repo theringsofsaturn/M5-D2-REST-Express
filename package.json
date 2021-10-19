@@ -1,12 +1,12 @@
 {
-  "name": "M5-D2-REST-Express",
+  "name": "m5-d2-rest-express",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -e js ./src/server.js"
+    "dev": "nodemon -e js ./src/server.js"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/theringsofsaturn/M5-D2-REST-Express#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-list-endpoints": "^6.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
