@@ -1,6 +1,7 @@
 // OLD IMPORT SYNTAX const express = require("express")
 import express from "express"; // NEW IMPORT SYNTAX
 import listEndpoints from "express-list-endpoints"
+import cors from "cors"
 import authorsRouter from "./services/authors/index.js"
 
 const server = express();
