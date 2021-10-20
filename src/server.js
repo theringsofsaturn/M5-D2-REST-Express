@@ -3,6 +3,7 @@ import express from "express"; // NEW IMPORT SYNTAX
 import listEndpoints from "express-list-endpoints"
 import cors from "cors"
 import authorsRouter from "./services/authors/index.js"
+import blogRouter from "./services/blog/index.js";
 
 // import {
 //   notFoundError,
@@ -33,7 +34,7 @@ server.use(express.json()); // If I do NOT specify this line BEFORE the endpoint
 
 // all of the endpoints which are in the authorsRouter will have /authors as a prefix
 server.use("/authors", authorsRouter);
-// server.use("/blogPosts", blogRouter)
+server.use("/blogPosts", blogRouter)
 
 console.table(listEndpoints(server))
 
