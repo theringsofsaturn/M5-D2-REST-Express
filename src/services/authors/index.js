@@ -24,12 +24,12 @@ const currentFilePath = fileURLToPath(import.meta.url);
 
 // 2. I'll get the parent folder's path
 //dirname extracts the directory name from the specified path
-const parentFolderPath = dirname(currentFilePath);
+const currentDir = dirname(currentFilePath);
 // const currentDir = dirname(fileURLToPath(import.meta.url))
 
-// 3. I can concatenate the parent's folder path with authors.json
+// 3. I can concatenate the directory path with authors.json file
 //join is the safest way to concatenate two paths together regardless of what OS are you executing the application from
-const authorsJsonPath = join(parentFolderPath, "authors.json"); // DO NOT EVER USE '+' TO CONCATENATE TWO PATHS, USE JOIN INSTEAD
+const authorsJsonPath = join(currentDir, "authors.json"); // DO NOT EVER USE '+' TO CONCATENATE TWO PATHS, USE JOIN INSTEAD
 console.log(authorsJsonPath);
 
 //Get all the authors
@@ -72,7 +72,7 @@ authorsRouter.post("/", (req, res) => {
     avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`,
   };
 
-// Read the file content 
+  // Read the file content
   const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
 
   console.log(
@@ -103,7 +103,7 @@ authorsRouter.put("/:authorsId", (req, res) => {
     (authors) => authors.id === req.params.authorsId
   );
 
-  //spreading the old body content and replacing some parts or everything with the request sent by the client
+  // copying the body content and overwriting some parts with what is sent with the request by the client
   const updateAuthor = { ...authors[indexOfAuthor], ...req.body };
 
   authors[indexOfAuthor] = updateAuthor;
@@ -114,7 +114,7 @@ authorsRouter.put("/:authorsId", (req, res) => {
   res.send(updateAuthor);
 });
 
-//Delete a unique author that has the matching Id
+//Delete a specific author that has the matching Id
 authorsRouter.delete("/:authorsId", (req, res) => {
   //read the body content
   const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
@@ -123,101 +123,10 @@ authorsRouter.delete("/:authorsId", (req, res) => {
     (authors) => authors.id !== req.params.authorsId
   );
 
-  //writing on the disk all the authors but not the deleted one
+  //writing on the disk all the authors apart from the deleted one
   fs.writeFileSync(authorsJsonPath, JSON.stringify(authorsArray));
 
   res.status(204).send();
 });
-
-// /// 1.
-// authorsRouter.post("/", (req, res) => {
-//   // First parameter is relative URL, second parameter is the REQUEST HANDLER
-
-//   // 1. Read the request body obtaining the new author's data
-//   console.log(req.body);
-
-//   const newAuthor = { ...req.body, createdAt: new Date(), id: uniqid() };
-//   console.log(newAuthor);
-
-//   // 2. Read the file content obtaining the authors array
-//   const authors = JSON.parse(fs.readFileSync(authorsJSONPath));
-
-//   // 3. Add new author to the array
-//   authors.push(newAuthor);
-
-//   // 4. Write the array back to the file
-//   fs.writeFileSync(authorsJSONPath, JSON.stringify(authors));
-
-//   // 5. Send back a proper response
-
-//   res.status(201).send({ id: newAuthor.id });
-// });
-
-// // 2.
-// authorsRouter.get("/", (req, res) => {
-//   // 1. Read the content of authors.json file
-
-//   const fileContent = fs.readFileSync(authorsJSONPath); // You are getting back the file content in the form of a BUFFER (machine readable)
-
-//   console.log(JSON.parse(fileContent));
-
-//   const arrayOfauthors = JSON.parse(fileContent); // JSON.parse is translating buffer into a real JS array
-//   // 2. Send it back as a response
-//   res.send(arrayOfauthors);
-// });
-
-// // 3.
-// authorsRouter.get("/:authorId", (req, res) => {
-//   // 1. Read the content of authors.json file (obtaining an array)
-
-//   const authors = JSON.parse(fs.readFileSync(authorsJSONPath));
-
-//   // 2. Find the user by id in the array
-
-//   const author = authors.find((author) => author.id === req.params.authorId); // in the req.params I need to use the exact same name I have used in the "placeholder" in the URL
-
-//   // 3. Send the user as a response
-
-//   res.send(author);
-// });
-
-// // 4.
-// authorsRouter.put("/:authorId", (req, res) => {
-//   // 1. Read authors.json obtaining an array of authors
-//   const authors = JSON.parse(fs.readFileSync(authorsJSONPath));
-
-//   // 2. Modify the specified author
-//   const index = authors.findIndex(
-//     (author) => author.id === req.params.authorId
-//   );
-
-//   const updatedauthor = { ...authors[index], ...req.body };
-
-//   authors[index] = updatedauthor;
-
-//   // 3. Save the file with updated list of authors
-//   fs.writeFileSync(authorsJSONPath, JSON.stringify(authors));
-
-//   // 4. Send back a proper response
-
-//   res.send(updatedauthor);
-// });
-
-// // 5.
-// authorsRouter.delete("/:authorId", (req, res) => {
-//   // 1. Read authors.json obtaining an array of authors
-//   const authors = JSON.parse(fs.readFileSync(authorsJSONPath));
-
-//   // 2. Filter out the specified author from the array, keeping just the remaining authors
-//   const remainingauthors = authors.filter(
-//     (author) => author.id !== req.params.authorId
-//   ); // ! = =
-
-//   // 3. Save the remaining authors into authors.json file again
-//   fs.writeFileSync(authorsJSONPath, JSON.stringify(remainingauthors));
-
-//   // 4. Send back a proper response
-//   res.status(204).send();
-// });
 
 export default authorsRouter;
