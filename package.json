@@ -21,7 +21,8 @@
   "homepage": "https://github.com/theringsofsaturn/M5-D2-REST-Express#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "express-list-endpoints": "^6.0.0"
+    "express-list-endpoints": "^6.0.0",
+    "uniqid": "^5.4.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
