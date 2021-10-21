@@ -7,6 +7,7 @@ import { dirname, join } from "path"; // CORE MODULE (doesn't need to be install
 
 // Get random unique ID
 import uniqid from "uniqid"; // 3RD PARTY MODULE (Needs to be installed)
+import { readAuthors, writeAuthors, authorsAvatarPic } from "../../lib/tools";
 
 const authorsRouter = express.Router(); // a Router is a set of endpoints that share something like a prefix (authorsRouter is going to share /authors as a prefix)
 
@@ -35,7 +36,7 @@ console.log(authorsJsonPath);
 //Get all the authors
 authorsRouter.get("/", async (req, res) => {
   // Read the file content obtaining the authors array. It converts from machine language to JSON
-  const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
+  const authors = readAuthors() // --> JSON.parse(fs.readFileSync(authorsJsonPath));
 
   console.log(authors);
 

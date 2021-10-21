@@ -16,7 +16,7 @@ const currentDir = dirname(currentFilePath);
 const blogPostsJSONPath = path.join(currentDir, "blog.json");
 
 //GET
-blogRouter.get("/", (req, res) => {
+blogRouter.get("/", async (req, res) => {
   try {
     const blogPosts = JSON.parse(fs.readFileSync(blogPostsJSONPath));
     //Send back a proper response
