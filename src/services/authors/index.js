@@ -116,16 +116,16 @@ authorsRouter.put("/:authorsId", async (req, res) => {
 });
 
 //Delete a specific author that has the matching Id
-authorsRouter.delete("/:authorsId", (req, res) => {
+authorsRouter.delete("/:authorsId", async (req, res) => {
   //read the body content
-  const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
+  const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
 
   const authorsArray = authors.filter(
     (authors) => authors.id !== req.params.authorsId
   );
 
   //writing on the disk all the authors apart from the deleted one
-  fs.writeFileSync(authorsJsonPath, JSON.stringify(authorsArray));
+  await writeAuthors(authorsArray); // fs.writeFileSync(authorsJsonPath, JSON.stringify(authorsArray));
 
   res.status(204).send();
 });
