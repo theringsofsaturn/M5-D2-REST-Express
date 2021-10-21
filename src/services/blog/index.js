@@ -3,7 +3,7 @@ import uniqid from "uniqid";
 import fs from "fs"; // CORE MODULE (doesn't need to be installed)
 import { fileURLToPath } from "url"; // CORE MODULE (doesn't need to be installed)
 
-import { dirname, join } from "path"; // CORE MODULE (doesn't need to be installed)
+import path, { dirname, join } from "path"; // CORE MODULE (doesn't need to be installed)
 
 const blogRouter = express.Router();
 
@@ -13,18 +13,25 @@ const currentFilePath = fileURLToPath(import.meta.url);
 const currentDir = dirname(currentFilePath);
 // const currentDir = dirname(fileURLToPath(import.meta.url))
 
-const blogPostsJSONPath = join(currentDir, "blog.json");
+const blogPostsJSONPath = path.join(currentDir, "blog.json");
 
 //GET
 blogRouter.get("/", (req, res) => {
-  const blogPosts = JSON.parse(fs.readFileSync(blogPostsJSONPath));
-  //Send back a proper response 
-  res.status(200).send(blogPosts);
+  try {
+    const blogPosts = JSON.parse(fs.readFileSync(blogPostsJSONPath));
+    //Send back a proper response
+    res.status(200).send(blogPosts);
+  } catch (error) {
+    res.send(500).send({ message: error.message });
+  }
 });
 
+
+
 // //Get specific blog posts matching an ID
-// GET 
-blogRouter.get("/:blogPostsId", (req, res) => {
+// GET
+blogRouter.get("/:blogPostsId", (req, res, next) => {
+  try {
     const blogPosts = JSON.parse(fs.readFileSync(blogPostsJSONPath));
   
     //filter the blog posts with that specific id
@@ -36,6 +43,9 @@ blogRouter.get("/:blogPostsId", (req, res) => {
   
     // send a proper response
     res.status(200).send(filteredblogPosts);
-  });
+  } catch (error) {
+    res.send(500).send({ message: error.message });
+  }
+});
 
 export default blogRouter;

@@ -44,5 +44,9 @@ console.table(listEndpoints(server))
 // server.use(genericServerError)
 
 server.listen(port, () => {
-  console.log("Server is running on port: ", port);
+  console.log("✅ Server is running on port: ", port);
 });
+
+server.on("error", (error) =>
+  console.log(`❌ Server is not running due to : ${error}`)
+);
