@@ -93,6 +93,30 @@ authorsRouter.post("/", async (req, res) => {
   res.status(201).send({ id: authors.id });
 });
 
+// Upload author's avatar
+authorsRouter.post("/:authorsId/uploadAvatar" , async (req ,res) => {
+
+  console.log(req.body)
+
+  //spreading (copying) the whole body of the request that was sent, then add an id and a date created
+  const createAuthor = { ...req.body , createdAt: new Date() , id: uniqid() , avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`}
+
+  const authors = await readAuthors()
+
+  if(authors.filter(author => author.email === req.body.email).length > 0){
+      res.status(403).send({succes: false , data: "User already exists"})
+      return
+  }
+
+  authors.push(createAuthor)
+
+  //writing the changes on the disk
+  await writeAuthors(authors)
+
+  res.status(201).send({id: authors.id})
+})
+
+
 //Modify a specific author that has the matching Id
 // PUT
 authorsRouter.put("/:authorsId", async (req, res) => {

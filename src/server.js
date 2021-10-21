@@ -35,7 +35,9 @@ server.use(express.json()); // If I do NOT specify this line BEFORE the endpoint
 
 // all of the endpoints which are in the authorsRouter will have /authors as a prefix
 server.use("/authors", authorsRouter);
+server.use("/:authorsId/uploadAvatar")
 server.use("/blogPosts", blogRouter)
+
 
 console.table(listEndpoints(server))
 
