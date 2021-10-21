@@ -2,7 +2,7 @@ import express from "express";
 import uniqid from "uniqid";
 import path, { dirname, join } from "path"; // CORE MODULE (doesn't need to be installed)
 
-// Functions stored into a variable to read & write 
+// Functions stored into a variable to read & write
 import { readBlogs, writeBlogs } from "../../lib/tools.js";
 
 const blogRouter = express.Router();
@@ -23,27 +23,32 @@ blogRouter.get("/", async (req, res, next) => {
     // Send back the array with a proper response
     res.status(200).send(blogPosts);
   } catch (error) {
-    next(error);
+    next(error); // res.send(500).send({ message: error.message });
   }
 });
 
-// //Get specific blog posts matching an ID
+// //Get specific blog post ID
 // GET
-blogRouter.get("/:blogPostsId", (req, res, next) => {
+blogRouter.get("/:blogPostId", async (req, res, next) => {
   try {
-    const blogPosts = JSON.parse(fs.readFileSync(blogPostsJSONPath));
+    // Read the file content
+    const blogPosts = await readBlogs(); // JSON.parse(fs.readFileSync(blogPostsJSONPath));
 
-    //filter the blog posts with that specific id
-    const filteredblogPosts = blogPosts.find(
-      (blogPosts) => blogPosts.id === req.params.blogPostsId
+    //filter and check the blog posts for that specific id
+    const filterblogPosts = blogPosts.find(
+      (blogPosts) => blogPosts.id === req.params.blogPostId
     );
 
-    console.log(req.params.blogPostsId);
+    // console.log(req.params.blogPostsId);
 
-    // send a proper response
-    res.status(200).send(filteredblogPosts);
+    if (filterblogPosts.lenghth > 0) {
+      // Send back the array with a proper response
+      res.status(200).send(filterblogPosts);
+    }else{
+      createHttpError(404, `This blog post id: ${req.params.blogPostId}, was not found!`)
+    }
   } catch (error) {
-    res.send(500).send({ message: error.message });
+    next(error) // res.send(500).send({ message: error.message });
   }
 });
 
