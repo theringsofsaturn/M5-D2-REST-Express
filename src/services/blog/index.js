@@ -85,9 +85,11 @@ blogRouter.get("/:blogPostId", async (req, res, next) => {
 // PUT
 blogRouter.put("/:blogPostId", async (req, res, next) => {
   try {
-    const blogPosts = await readBlogs(); // // JSON.parse(fs.readFileSync(blogPostsJSONPath));
+    const blogPosts = await readBlogs(); // JSON.parse(fs.readFileSync(blogPostsJSONPath));
 
-    const index = blogPosts.findIndex((blogPosts) => blogPosts._id === req.params.blogPostId);
+    const index = blogPosts.findIndex(
+      (blogPosts) => blogPosts._id === req.params.blogPostId
+    );
 
     const newBlogPost = { ...blogPosts[index], ...req.body };
 
@@ -96,6 +98,25 @@ blogRouter.put("/:blogPostId", async (req, res, next) => {
     await writeBlogs(blogs);
 
     res.send(newBlogPost);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Delete blog posts
+// DELETE
+
+blogRouter.delete("/:blogPostId", async (req, res, next) => {
+  try {
+    const blogPosts = await readBlogs(); // JSON.parse(fs.readFileSync(blogPostsJSONPath));
+
+    const blogsArray = blogPosts.filter(
+      (blogPosts) => blogPosts._id !== req.params.blogPostId
+    );
+
+    await writeBlogs(blogsArray);
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
