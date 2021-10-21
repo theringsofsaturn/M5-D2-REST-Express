@@ -1,5 +1,5 @@
 import express from "express"; // 3RD PARTY MODULE (does need to be installed)
-import fs from "fs"; // CORE MODULE (doesn't need to be installed)
+import fs from "fs-extra"; // CORE MODULE (doesn't need to be installed)
 
 import { fileURLToPath } from "url"; // CORE MODULE (doesn't need to be installed)
 
@@ -33,7 +33,7 @@ const authorsJsonPath = join(currentDir, "authors.json"); // DO NOT EVER USE '+'
 console.log(authorsJsonPath);
 
 //Get all the authors
-authorsRouter.get("/", (req, res) => {
+authorsRouter.get("/", async (req, res) => {
   // Read the file content obtaining the authors array. It converts from machine language to JSON
   const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
 

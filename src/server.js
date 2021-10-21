@@ -5,12 +5,13 @@ import cors from "cors"
 import authorsRouter from "./services/authors/index.js"
 import blogRouter from "./services/blog/index.js";
 
-// import {
-//   notFoundError,
-//   badRequestError,
-//   forbidenError,
-//   genericServerError,
-// } from "./errorHandlers.js"
+import {
+  notFoundError,
+  badRequestError,
+  unauthorizedError,
+  forbidenError,
+  genericServerError,
+} from "./errorHandlers.js"
 
 // the server on the localhost por 3001 stored in a variable
 const server = express();
