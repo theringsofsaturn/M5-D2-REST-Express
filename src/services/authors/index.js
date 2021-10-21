@@ -62,7 +62,7 @@ authorsRouter.get("/:authorsId", async (req, res) => {
 
 //Create a unique author with an Id
 // POST
-authorsRouter.post("/", (req, res) => {
+authorsRouter.post("/", async (req, res) => {
   console.log(req.body);
 
   //spreading (copying) the whole body of the request that was sent, then add an id and a date created
@@ -74,7 +74,7 @@ authorsRouter.post("/", (req, res) => {
   };
 
   // Read the file content
-  const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
+  const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
 
   console.log(
     authors.filter((author) => author.email === req.body.email).length > 0
@@ -88,7 +88,7 @@ authorsRouter.post("/", (req, res) => {
   authors.push(createAuthor);
 
   //writing the changes on the disk
-  fs.writeFileSync(authorsJsonPath, JSON.stringify(authors));
+  await writeAuthors(authors); // fs.writeFileSync(authorsJsonPath, JSON.stringify(authors));
 
   res.status(201).send({ id: authors.id });
 });
