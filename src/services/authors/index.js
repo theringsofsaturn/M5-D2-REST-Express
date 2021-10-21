@@ -11,6 +11,8 @@ import uniqid from "uniqid"; // 3RD PARTY MODULE (Needs to be installed)
 // Handle all status code error messages with this package
 import createHttpError from "http-errors";
 
+import { authorsValidationMiddleware } from "./validation.js";
+
 // Functions stored into a variable to read & write
 import {
   readAuthors,
@@ -71,8 +73,9 @@ authorsRouter.get("/:authorsId", async (req, res) => {
 
 //Create a unique author with an Id
 // POST
-authorsRouter.post("/", async (req, res) => {
+authorsRouter.post("/", authorsValidationMiddleware, async (req, res) => {
   console.log(req.body);
+  console.log(uniqid())
 
   //spreading (copying) the whole body of the request that was sent, then add an id and a date created
   const createAuthor = {
