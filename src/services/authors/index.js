@@ -7,7 +7,16 @@ import { dirname, join } from "path"; // CORE MODULE (doesn't need to be install
 
 // Get random unique ID
 import uniqid from "uniqid"; // 3RD PARTY MODULE (Needs to be installed)
-import { readAuthors, writeAuthors, authorsAvatarPic } from "../../lib/tools";
+
+// Handle all status code error messages with this package
+import createHttpError from "http-errors";
+
+// Functions stored into a variable to read & write
+import {
+  readAuthors,
+  writeAuthors,
+  authorsAvatarPic,
+} from "../../lib/tools.js";
 
 const authorsRouter = express.Router(); // a Router is a set of endpoints that share something like a prefix (authorsRouter is going to share /authors as a prefix)
 
@@ -19,19 +28,19 @@ const authorsRouter = express.Router(); // a Router is a set of endpoints that s
 
 // ********************* how to find out the path *************
 // 1. I'll start from the current file I'm in right now (C://......./authors/index.js) and I'll get the path to that file
-//import.meta.url give us info about the url of the current module
-//fileURLToPath converts that url into a path
-const currentFilePath = fileURLToPath(import.meta.url);
+// import.meta.url give us info about the url of the current module
+// fileURLToPath converts that url into a path
+// const currentFilePath = fileURLToPath(import.meta.url);
 
 // 2. I'll get the parent folder's path
-//dirname extracts the directory name from the specified path
-const currentDir = dirname(currentFilePath);
+// dirname extracts the directory name from the specified path
+// const currentDir = dirname(currentFilePath);
 // const currentDir = dirname(fileURLToPath(import.meta.url))
 
 // 3. I can concatenate the directory path with authors.json file
-//join is the safest way to concatenate two paths together regardless of what OS are you executing the application from
-const authorsJsonPath = join(currentDir, "authors.json"); // DO NOT EVER USE '+' TO CONCATENATE TWO PATHS, USE JOIN INSTEAD
-console.log(authorsJsonPath);
+// join is the safest way to concatenate two paths together regardless of what OS are you executing the application from
+// const authorsJsonPath = join(currentDir, "authors.json"); // DO NOT EVER USE '+' TO CONCATENATE TWO PATHS, USE JOIN INSTEAD
+// console.log(authorsJsonPath);
 
 //Get all the authors
 authorsRouter.get("/", async (req, res) => {
@@ -40,16 +49,16 @@ authorsRouter.get("/", async (req, res) => {
 
   console.log(authors);
 
-  //Send back a proper response (whole body)
+  // Send back a proper response (whole body)
   res.status(200).send(authors);
 });
 
-//Get specific author matching an ID
+// Get specific author matching an ID
 // GET
 authorsRouter.get("/:authorsId", async (req, res) => {
   const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
 
-  //filter the author with that specific id
+  // filter the author with that specific id
   const filteredAuthors = authors.find(
     (authors) => authors.id === req.params.authorsId
   );
@@ -95,41 +104,43 @@ authorsRouter.post("/", async (req, res) => {
 
 // Upload author's avatar
 // POST
-authorsRouter.post("/:authorsId/uploadAvatar" , async (req ,res) => {
-
-  console.log(req.body)
+authorsRouter.post("/:authorsId/uploadAvatar", async (req, res) => {
+  console.log(req.body);
 
   //spreading (copying) the whole body of the request that was sent, then add an id and a date created
-  const createAuthor = { ...req.body , createdAt: new Date() , id: uniqid() , avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`}
+  const createAuthor = {
+    ...req.body,
+    createdAt: new Date(),
+    id: uniqid(),
+    avatar: `https://ui-avatars.com/api/?name=${req.body.name}+${req.body.surname}`,
+  };
 
-  const authors = await readAuthors()
+  const authors = await readAuthors();
 
-  if(authors.filter(author => author.email === req.body.email).length > 0){
-      res.status(403).send({succes: false , data: "User already exists"})
-      return
+  if (authors.filter((author) => author.email === req.body.email).length > 0) {
+    res.status(403).send({ succes: false, data: "User already exists" });
+    return;
   }
 
-  authors.push(createAuthor)
+  authors.push(createAuthor);
 
   //writing the changes on the disk
-  await writeAuthors(authors)
+  await writeAuthors(authors);
 
-  res.status(201).send({id: authors.id})
-})
+  res.status(201).send({ id: authors.id });
+});
 
 // Check email
 // POST
-authorsRouter.post("/checkEmail" , async (req ,res) => {
+authorsRouter.post("/checkEmail", async (req, res) => {
+  const authors = await readAuthors();
 
-  const authors = await readAuthors()
-
-  if(authors.filter(author => author.email === req.body.email).length > 0){
-      res.status(403).send({succes: false , data: "User already exists"})
+  if (authors.filter((author) => author.email === req.body.email).length > 0) {
+    res.status(403).send({ succes: false, data: "User already exists" });
   } else {
-      res.status(201).send({succes: true})
+    res.status(201).send({ succes: true });
   }
-})
-
+});
 
 //Modify a specific author that has the matching Id
 // PUT
