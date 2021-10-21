@@ -18,7 +18,7 @@ const blogRouter = express.Router();
 blogRouter.get("/", async (req, res, next) => {
   try {
     // Read the file content obtaining the blog post array
-    const blogPosts = await readBlogs();
+    const blogPosts = await readBlogs(); // // JSON.parse(fs.readFileSync(blogPostsJSONPath));
 
     // Send back the array with a proper response
     res.status(200).send(blogPosts);
@@ -44,11 +44,60 @@ blogRouter.get("/:blogPostId", async (req, res, next) => {
     if (filterblogPosts.lenghth > 0) {
       // Send back the array with a proper response
       res.status(200).send(filterblogPosts);
-    }else{
-      createHttpError(404, `This blog post id: ${req.params.blogPostId}, was not found!`)
+    } else {
+      createHttpError(
+        404,
+        `This blog post id: ${req.params.blogPostId}, was not found!`
+      );
     }
   } catch (error) {
-    next(error) // res.send(500).send({ message: error.message });
+    next(error); // res.send(500).send({ message: error.message });
+  }
+});
+
+// Validation
+// blogPostsRouter.post("/", blogValidation , async (req, res, next) => {
+//   try {
+//     const errorsList = validationResult(req);
+
+//     if (!errorsList.isEmpty()) {
+//       next(createHttpError(400, { errorsList }));
+//     } else {
+//       //spread the req.body
+//       const createdPost = { _id: uniqid(), ...req.body, createdAt: new Date() };
+
+//       const blogs = await readBlogs()
+
+//       blogs.push(createdPost);
+
+//       //write everything back to the json
+//       await writeBlogs(blogs)
+
+//       //send back the id of the newly created post
+//       res.status(201).send({ _id: blogs._id });
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+// Update blog posts
+// PUT
+blogRouter.put("/:blogPostId", async (req, res, next) => {
+  try {
+    const blogPosts = await readBlogs(); // // JSON.parse(fs.readFileSync(blogPostsJSONPath));
+
+    const index = blogPosts.findIndex((blogPosts) => blogPosts._id === req.params.blogPostId);
+
+    const newBlogPost = { ...blogPosts[index], ...req.body };
+
+    blogPosts[index] = newBlogPost;
+
+    await writeBlogs(blogs);
+
+    res.send(newBlogPost);
+  } catch (error) {
+    next(error);
   }
 });
 
