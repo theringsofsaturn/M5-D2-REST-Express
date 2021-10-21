@@ -56,35 +56,36 @@ blogRouter.get("/:blogPostId", async (req, res, next) => {
 });
 
 // Validation
-// blogPostsRouter.post("/", blogValidation , async (req, res, next) => {
-//   try {
-//     const errorsList = validationResult(req);
+blogRouter.post("/", blogPostValidationMiddleware, async (req, res, next) => {
+  try {
+    const errorsList = validationResult(req);
 
-//     if (!errorsList.isEmpty()) {
-//       next(createHttpError(400, { errorsList }));
-//     } else {
-//       //spread the req.body
-//       const createdPost = { _id: uniqid(), ...req.body, createdAt: new Date() };
+    if (!errorsList.isEmpty()) {
+      next(createHttpError(400, { errorsList })); //  res.status(400).send(errorList)
+    } else {
+      //copy the body request
+      const newBlogPost = { _id: uniqid(), ...req.body, createdAt: new Date() };
 
-//       const blogs = await readBlogs()
+      const blogPosts = await readBlogs();
 
-//       blogs.push(createdPost);
+      blogPosts.push(newBlogPost);
 
-//       //write everything back to the json
-//       await writeBlogs(blogs)
+      //write content
+      await writeBlogs(blogPosts);
 
-//       //send back the id of the newly created post
-//       res.status(201).send({ _id: blogs._id });
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+      //send back the id of the newly created post
+      res.status(201).send({ _id: blogs._id });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Update blog posts
 // PUT
 blogRouter.put("/:blogPostId", async (req, res, next) => {
   try {
+    // Read content
     const blogPosts = await readBlogs(); // JSON.parse(fs.readFileSync(blogPostsJSONPath));
 
     const index = blogPosts.findIndex(
@@ -95,8 +96,9 @@ blogRouter.put("/:blogPostId", async (req, res, next) => {
 
     blogPosts[index] = newBlogPost;
 
-    await writeBlogs(blogs);
-
+    // Write content
+    await writeBlogs(blogPosts);
+    //
     res.send(newBlogPost);
   } catch (error) {
     next(error);
