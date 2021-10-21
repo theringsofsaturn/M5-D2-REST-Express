@@ -94,6 +94,7 @@ authorsRouter.post("/", async (req, res) => {
 });
 
 // Upload author's avatar
+// POST
 authorsRouter.post("/:authorsId/uploadAvatar" , async (req ,res) => {
 
   console.log(req.body)
@@ -114,6 +115,19 @@ authorsRouter.post("/:authorsId/uploadAvatar" , async (req ,res) => {
   await writeAuthors(authors)
 
   res.status(201).send({id: authors.id})
+})
+
+// Check email
+// POST
+authorsRouter.post("/checkEmail" , async (req ,res) => {
+
+  const authors = await readAuthors()
+
+  if(authors.filter(author => author.email === req.body.email).length > 0){
+      res.status(403).send({succes: false , data: "User already exists"})
+  } else {
+      res.status(201).send({succes: true})
+  }
 })
 
 
