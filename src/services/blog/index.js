@@ -1,5 +1,7 @@
 import express from "express";
 import uniqid from "uniqid";
+import { validationResult } from "express-validator";
+import { blogPostValidationMiddleware } from "./validation.js";
 import path, { dirname, join } from "path"; // CORE MODULE (doesn't need to be installed)
 
 // Functions stored into a variable to read & write
