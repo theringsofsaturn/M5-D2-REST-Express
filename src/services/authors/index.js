@@ -36,7 +36,7 @@ console.log(authorsJsonPath);
 //Get all the authors
 authorsRouter.get("/", async (req, res) => {
   // Read the file content obtaining the authors array. It converts from machine language to JSON
-  const authors = readAuthors() // --> JSON.parse(fs.readFileSync(authorsJsonPath));
+  const authors = readAuthors(); // --> JSON.parse(fs.readFileSync(authorsJsonPath));
 
   console.log(authors);
 
@@ -46,8 +46,8 @@ authorsRouter.get("/", async (req, res) => {
 
 //Get specific author matching an ID
 // GET
-authorsRouter.get("/:authorsId", (req, res) => {
-  const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
+authorsRouter.get("/:authorsId", async (req, res) => {
+  const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
 
   //filter the author with that specific id
   const filteredAuthors = authors.find(
