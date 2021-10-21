@@ -95,9 +95,9 @@ authorsRouter.post("/", async (req, res) => {
 
 //Modify a specific author that has the matching Id
 // PUT
-authorsRouter.put("/:authorsId", (req, res) => {
+authorsRouter.put("/:authorsId", async (req, res) => {
   //read all the authors
-  const authors = JSON.parse(fs.readFileSync(authorsJsonPath));
+  const authors = readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
 
   //find the author
   const indexOfAuthor = authors.findIndex(
@@ -110,7 +110,7 @@ authorsRouter.put("/:authorsId", (req, res) => {
   authors[indexOfAuthor] = updateAuthor;
 
   //writing the changes on the disk
-  fs.writeFileSync(authorsJsonPath, JSON.stringify(authors));
+  await writeAuthors(authors); // fs.writeFileSync(authorsJsonPath, JSON.stringify(authors));
 
   res.send(updateAuthor);
 });
