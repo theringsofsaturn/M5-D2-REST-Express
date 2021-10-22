@@ -1,4 +1,12 @@
 import express from "express"; // 3RD PARTY MODULE (does need to be installed)
+
+// Functions stored into a variable to read & write
+import {
+  readAuthors,
+  writeAuthors,
+  authorsAvatarPic,
+} from "../../lib/tools.js";
+
 import fs from "fs-extra"; // CORE MODULE (doesn't need to be installed)
 
 import { fileURLToPath } from "url"; // CORE MODULE (doesn't need to be installed)
@@ -26,13 +34,7 @@ const authorAvatarStorage = new CloudinaryStorage({
   },
 });
 
-// Functions stored into a variable to read & write
-import {
-  readAuthors,
-  writeAuthors,
-  authorsAvatarPic,
-} from "../../lib/tools.js";
-import { nextTick } from "process";
+const uploadOnCloudinary = multer({ storage: authorAvatarStorage });
 
 const authorsRouter = express.Router(); // a Router is a set of endpoints that share something like a prefix (authorsRouter is going to share /authors as a prefix)
 
@@ -186,29 +188,33 @@ authorsRouter.post(
   uploadOnCloudinary.single("avatar"),
   async (req, res, next) => {
     try {
-      const authors = await getAuthorsArray()
-      const filteredAuthor = authors.find(author=> author._id === req.params.authorsId)
+      const authors = await readAuthors();
+      const filteredAuthor = authors.find(
+        (author) => author._id === req.params.authorsId
+      );
 
-      if(filteredAuthor) {
-          // await writeAuthorsImage((`${req.params.id}.jpg`), req.file.buffer)
-          
-          const remainingAuthors = authors.filter(author => author._id !== req.params.id)
-          const modifiedAuthor = {
-              _id: req.params.authorsId, 
-              ...filteredAuthor,
-              // avatar: `http://localhost:3001/img/authors/${req.params.id}.jpg`
-              avatar: req.file.path
-          }
-          remainingAuthors.push(modifiedAuthor)
-          await writeAuthors(remainingAuthors)
-          
-          res.status(201).send(modifiedAuthor)
+      if (filteredAuthor) {
+        const remainingAuthors = authors.filter(
+          (author) => author._id !== req.params.id
+        );
+        const modifiedAuthor = {
+          _id: req.params.authorsId,
+          ...filteredAuthor,
+          // avatar: `http://localhost:3001/img/authors/${req.params.id}.jpg`
+          avatar: req.file.path,
+        };
+        remainingAuthors.push(modifiedAuthor);
+        await writeAuthors(remainingAuthors);
+
+        res.status(201).send(modifiedAuthor);
       } else {
-          next(createError(404, `Author with id ${req.params.authorsId} not found!`))
+        next(
+          createError(404, `Author with id ${req.params.authorsId} not found!`)
+        );
       }
-  } catch (error) {
-      next(error)
-  }
+    } catch (error) {
+      next(error);
+    }
   }
 );
 
