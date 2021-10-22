@@ -183,31 +183,32 @@ authorsRouter.delete("/:authorsId", async (req, res, next) => {
 // POST
 authorsRouter.post(
   "/:authorsId/uploadAvatar",
-  multer().single("avatar"),
-  async (req, res) => {
-    console.log(req.body);
-
+  uploadOnCloudinary.single("avatar"),
+  async (req, res, next) => {
     try {
-      const extension = extname(req.file.originalname);
-      await authorsAvatarPic(req.params.authorsId + extension, req.file.buffer);
+      const authors = await getAuthorsArray()
+      const filteredAuthor = authors.find(author=> author._id === req.params.authorsId)
 
-      const authors = await readAuthors();
-
-      const authorsUrl = authors.find(
-        (blog) => blog.id === req.params.authorsId
-      );
-
-      const avatarUrl = `http://localhost:3001/img/authors/${req.params.authorsId}${extension}`;
-      authorsUrl.avatar = avatarUrl;
-      const authorsArray = authors.filter(
-        (blogs) => blogs.id !== req.params.authorsId
-      );
-      authorsArray.push(authorsUrl);
-      await writeAuthors(authorsArray);
-      res.send(200);
-    } catch (error) {
-      nextTick(error);
-    }
+      if(filteredAuthor) {
+          // await writeAuthorsImage((`${req.params.id}.jpg`), req.file.buffer)
+          
+          const remainingAuthors = authors.filter(author => author._id !== req.params.id)
+          const modifiedAuthor = {
+              _id: req.params.authorsId, 
+              ...filteredAuthor,
+              // avatar: `http://localhost:3001/img/authors/${req.params.id}.jpg`
+              avatar: req.file.path
+          }
+          remainingAuthors.push(modifiedAuthor)
+          await writeAuthors(remainingAuthors)
+          
+          res.status(201).send(modifiedAuthor)
+      } else {
+          next(createError(404, `Author with id ${req.params.authorsId} not found!`))
+      }
+  } catch (error) {
+      next(error)
+  }
   }
 );
 
