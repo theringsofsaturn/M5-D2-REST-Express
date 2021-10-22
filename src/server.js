@@ -12,6 +12,7 @@ import {
   forbidenError,
   genericServerError,
 } from "./errorHandlers.js";
+import filesRouter from "./files/index.js";
 
 // the server on the localhost por 3001 stored in a variable
 const server = express();
@@ -36,7 +37,9 @@ server.use(express.json()); // If I do NOT specify this line BEFORE the endpoint
 
 // all of the endpoints which are in the authorsRouter will have /authors as a prefix
 server.use("/authors", authorsRouter);
+server.use("/authors/authorsId/", filesRouter)
 server.use("/blogPosts", blogRouter);
+
 
 // Table tree endpoint
 console.table(listEndpoints(server));

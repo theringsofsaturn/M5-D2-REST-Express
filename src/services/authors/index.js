@@ -4,7 +4,7 @@ import express from "express"; // 3RD PARTY MODULE (does need to be installed)
 import {
   readAuthors,
   writeAuthors,
-  authorsAvatarPic,
+  writeAuthorImage,
 } from "../../lib/tools.js";
 
 import fs from "fs-extra"; // CORE MODULE (doesn't need to be installed)
@@ -183,39 +183,39 @@ authorsRouter.delete("/:authorsId", async (req, res, next) => {
 
 // Upload author's avatar
 // POST
-authorsRouter.post(
-  "/:authorsId/uploadAvatar",
-  uploadOnCloudinary.single("avatar"),
-  async (req, res, next) => {
-    try {
-      const authors = await readAuthors();
-      const filteredAuthor = authors.find(
-        (author) => author._id === req.params.authorsId
-      );
+// authorsRouter.post(
+//   "/:authorsId/uploadAvatar",
+//   multer().single("avatar"),
+//   async (req, res, next) => {
+//     try {
+//       const authors = await readAuthors();
+//       const filteredAuthor = authors.find(
+//         (author) => author._id === req.params.authorsId
+//       );
 
-      if (filteredAuthor) {
-        const remainingAuthors = authors.filter(
-          (author) => author._id !== req.params.id
-        );
-        const modifiedAuthor = {
-          _id: req.params.authorsId,
-          ...filteredAuthor,
-          // avatar: `http://localhost:3001/img/authors/${req.params.id}.jpg`
-          avatar: req.file.path,
-        };
-        remainingAuthors.push(modifiedAuthor);
-        await writeAuthors(remainingAuthors);
+//       if (filteredAuthor) {
+//         const remainingAuthors = authors.filter(
+//           (author) => author._id !== req.params.id
+//         );
+//         const modifiedAuthor = {
+//           _id: req.params.authorsId,
+//           ...filteredAuthor,
+//           // avatar: `http://localhost:3001/img/authors/${req.params.id}.jpg`
+//           avatar: req.file.path,
+//         };
+//         remainingAuthors.push(modifiedAuthor);
+//         await writeAuthors(remainingAuthors);
 
-        res.status(201).send(modifiedAuthor);
-      } else {
-        next(
-          createError(404, `Author with id ${req.params.authorsId} not found!`)
-        );
-      }
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+//         res.status(201).send(modifiedAuthor);
+//       } else {
+//         next(
+//           createError(404, `Author with id ${req.params.authorsId} not found!`)
+//         );
+//       }
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// );
 
 export default authorsRouter;

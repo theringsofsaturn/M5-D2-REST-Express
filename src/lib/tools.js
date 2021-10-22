@@ -1,6 +1,7 @@
 import fs from "fs-extra"
 import {fileURLToPath} from "url"
 import {dirname, join} from "path"
+
 // methods from fs-extra library
 const { readJSON, writeJSON, writeFile } = fs
 
@@ -8,12 +9,15 @@ const { readJSON, writeJSON, writeFile } = fs
 const dataFolder = join(dirname(fileURLToPath(import.meta.url)), "../data")
 const authorsJSONPath = join(dataFolder , "authors.json")
 const blogPostsJSONPath = join(dataFolder , "blog.json")
-const publicFolder = join(process.cwd() , ".public/img/authors")
-
+const authorsPublicFolderPath = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "../../public/img/users"
+  );
 // Functions stored into a variable to read & write 
-export const readAuthors = () => readJSON(authorsJSONPath)
-export const writeAuthors = (content) => writeJSON(authorsJSONPath , content)
-export const readBlogs = () => readJSON(blogPostsJSONPath)
-export const writeBlogs = (content) => writeJSON(blogPostsJSONPath , content)
+export const readAuthors = async () => await readJSON(authorsJSONPath)
+export const writeAuthors = async (content) => await writeJSON(authorsJSONPath , content)
+export const readBlogs = async () => await readJSON(blogPostsJSONPath)
+export const writeBlogs = async (content) => await writeJSON(blogPostsJSONPath , content)
 
-export const authorsAvatarPic = () => (fileName , content) => writeFile(join(publicFolder , fileName) , content)
+export const writeAuthorImage = async (filename, content) =>
+  await writeFile(join(authorsPublicFolderPath, filename), content);
