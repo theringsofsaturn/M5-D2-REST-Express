@@ -12,6 +12,7 @@ import uniqid from "uniqid"; // 3RD PARTY MODULE (Needs to be installed)
 import createHttpError from "http-errors";
 
 import { authorsValidationMiddleware } from "./validation.js";
+import createError from "http-errors";
 
 import multer from "multer";
 
@@ -77,7 +78,7 @@ authorsRouter.get("/:authorsId", async (req, res, next) => {
 
     // filter the author with that specific id
     const filteredAuthor = authors.find(
-      (authors) => authors.id === req.params.authorsId
+      (author) => author.id === req.params.authorsId
     );
 
     if (filteredAuthor) {
@@ -90,9 +91,6 @@ authorsRouter.get("/:authorsId", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-
-  // send a proper response
-  res.status(200).send(filteredAuthors);
 });
 
 //Create a new author
@@ -158,38 +156,33 @@ authorsRouter.post(
   }
 );
 
-// Check email
-// POST
-authorsRouter.post("/checkEmail", async (req, res) => {
-  const authors = await readAuthors();
-
-  if (authors.filter((author) => author.email === req.body.email).length > 0) {
-    res.status(403).send({ succes: false, data: "User already exists" });
-  } else {
-    res.status(201).send({ succes: true });
-  }
-});
-
 //Modify a specific author that has the matching Id
 // PUT
-authorsRouter.put("/:authorsId", async (req, res) => {
-  //read all the authors
-  const authors = readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
+authorsRouter.put("/:authorsId", async (req, res, next) => {
+  try {
+    const authors = await readAuthors();
+    const filteredAuthor = authors.find(
+      (author) => author._id === req.params.authorsId
+    );
 
-  //find the author
-  const indexOfAuthor = authors.findIndex(
-    (authors) => authors.id === req.params.authorsId
-  );
+    const remainingAuthors = authors.filter(
+      (auth) => auth._id !== req.params.authorsId
+    );
 
-  // copying the body content and overwriting some parts with what is sent with the request by the client
-  const updateAuthor = { ...authors[indexOfAuthor], ...req.body };
+    const modifiedAuthor = {
+      _id: req.params.authorsId,
+      ...filteredAuthor,
+      ...req.body,
+    };
 
-  authors[indexOfAuthor] = updateAuthor;
+    remainingAuthors.push(modifiedAuthor);
 
-  //writing the changes on the disk
-  await writeAuthors(authors); // fs.writeFileSync(authorsJsonPath, JSON.stringify(authors));
+    await writeAuthors(remainingAuthors);
 
-  res.send(updateAuthor);
+    res.send(modifiedAuthor);
+  } catch (error) {
+    next(error);
+  }
 });
 
 //Delete a specific author that has the matching Id
