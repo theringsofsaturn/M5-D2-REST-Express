@@ -3,7 +3,9 @@ import express from "express"; // NEW IMPORT SYNTAX
 import listEndpoints from "express-list-endpoints";
 import cors from "cors";
 import authorsRouter from "./services/authors/index.js";
+import filesRouter from "./files/index.js";
 import blogRouter from "./services/blog/index.js";
+import commentsRouter from "./comments/index.js";
 
 import {
   notFoundError,
@@ -12,7 +14,6 @@ import {
   forbidenError,
   genericServerError,
 } from "./errorHandlers.js";
-import filesRouter from "./files/index.js";
 
 // the server on the localhost por 3001 stored in a variable
 const server = express();
@@ -36,9 +37,9 @@ server.use(express.json()); // If I do NOT specify this line BEFORE the endpoint
 // ************* ENDPOINTS *****************
 
 // all of the endpoints which are in the authorsRouter will have /authors as a prefix
-server.use("/authors", authorsRouter);
-server.use("/authors/authorsId/", filesRouter)
-server.use("/blogPosts", blogRouter);
+server.use("/authors", authorsRouter, filesRouter);
+server.use("/blogPosts", blogRouter, commentsRouter);
+
 
 
 // Table tree endpoint
