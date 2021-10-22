@@ -66,21 +66,30 @@ authorsRouter.get("/", async (req, res, next) => {
     // Send back a proper response (whole body)
     res.status(200).send(authors);
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
-// Get specific author matching an ID
-// GET
-authorsRouter.get("/:authorsId", async (req, res) => {
-  const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
+// Get specific author matching an ID / Returns a single author
+authorsRouter.get("/:authorsId", async (req, res, next) => {
+  try {
+    const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
 
-  // filter the author with that specific id
-  const filteredAuthors = authors.find(
-    (authors) => authors.id === req.params.authorsId
-  );
+    // filter the author with that specific id
+    const filteredAuthor = authors.find(
+      (authors) => authors.id === req.params.authorsId
+    );
 
-  console.log(req.params.authorsId);
+    if (filteredAuthor) {
+      res.send(filteredAuthor);
+    } else {
+      next(
+        createError(404, `Author with id ${req.params.authorsId} not found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
 
   // send a proper response
   res.status(200).send(filteredAuthors);
