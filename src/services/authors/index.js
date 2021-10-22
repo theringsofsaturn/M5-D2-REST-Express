@@ -61,7 +61,7 @@ const authorsRouter = express.Router(); // a Router is a set of endpoints that s
 //Get all the authors / Return the list of authors
 authorsRouter.get("/", async (req, res, next) => {
   try {
-    // Read the file content obtaining the authors array. It converts from machine language to JSON
+    // Read the file content of authors json and obtaining the authors array. It converts from machine language to JSON
     const authors = await readAuthors(); // --> JSON.parse(fs.readFileSync(authorsJsonPath));
 
     // Send back a proper response (whole body)
@@ -74,7 +74,7 @@ authorsRouter.get("/", async (req, res, next) => {
 // Get specific author matching an ID / Returns a single author
 authorsRouter.get("/:authorsId", async (req, res, next) => {
   try {
-    const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
+    const authors = await readAuthors();
 
     // filter the author with that specific id
     const filteredAuthor = authors.find(
@@ -124,6 +124,61 @@ authorsRouter.post("/", authorsValidationMiddleware, async (req, res, next) => {
   }
 });
 
+//Modify a specific author that has the matching Id
+// PUT
+authorsRouter.put("/:authorsId", async (req, res, next) => {
+  try {
+    const authors = await readAuthors();
+    const filteredAuthor = authors.find(
+      (author) => author._id === req.params.authorsId
+    );
+
+    const remainingAuthors = authors.filter(
+      (auth) => auth._id !== req.params.authorsId
+    );
+
+    const modifiedAuthor = {
+      _id: req.params.authorsId,
+      ...filteredAuthor,
+      ...req.body,
+    };
+
+    remainingAuthors.push(modifiedAuthor);
+
+    await writeAuthors(remainingAuthors);
+
+    res.send(modifiedAuthor);
+  } catch (error) {
+    next(error);
+  }
+});
+
+//Delete a specific author with the given Id
+authorsRouter.delete("/:authorsId", async (req, res, next) => {
+  try {
+    const authors = await readAuthors();
+    const filteredAuthor = authors.find(
+      (auth) => auth._id === req.params.authorsId
+    );
+
+    if (filteredAuthor) {
+      const remainingAuthors = authors.filter(
+        (auth) => auth._id !== req.params.authorsId
+      );
+
+      await writeAuthors(remainingAuthors);
+
+      res.status(204).send();
+    } else {
+      next(
+        createError(404, `Author with id ${req.params.authorsId} not found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Upload author's avatar
 // POST
 authorsRouter.post(
@@ -155,49 +210,5 @@ authorsRouter.post(
     }
   }
 );
-
-//Modify a specific author that has the matching Id
-// PUT
-authorsRouter.put("/:authorsId", async (req, res, next) => {
-  try {
-    const authors = await readAuthors();
-    const filteredAuthor = authors.find(
-      (author) => author._id === req.params.authorsId
-    );
-
-    const remainingAuthors = authors.filter(
-      (auth) => auth._id !== req.params.authorsId
-    );
-
-    const modifiedAuthor = {
-      _id: req.params.authorsId,
-      ...filteredAuthor,
-      ...req.body,
-    };
-
-    remainingAuthors.push(modifiedAuthor);
-
-    await writeAuthors(remainingAuthors);
-
-    res.send(modifiedAuthor);
-  } catch (error) {
-    next(error);
-  }
-});
-
-//Delete a specific author that has the matching Id
-authorsRouter.delete("/:authorsId", async (req, res) => {
-  //read the body content
-  const authors = await readAuthors(); // JSON.parse(fs.readFileSync(authorsJsonPath));
-
-  const authorsArray = authors.filter(
-    (authors) => authors.id !== req.params.authorsId
-  );
-
-  //writing on the disk all the authors apart from the deleted one
-  await writeAuthors(authorsArray); // fs.writeFileSync(authorsJsonPath, JSON.stringify(authorsArray));
-
-  res.status(204).send();
-});
 
 export default authorsRouter;
