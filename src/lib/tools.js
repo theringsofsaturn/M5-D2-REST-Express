@@ -16,4 +16,4 @@ export const writeAuthors = (content) => writeJSON(authorsJSONPath , content)
 export const readBlogs = () => readJSON(blogPostsJSONPath)
 export const writeBlogs = (content) => writeJSON(blogPostsJSONPath , content)
 
-export const authorsAvatarPic = () => (fileName , buffer) => writeFile(join(publicFolder , fileName) , buffer)
+export const authorsAvatarPic = () => (fileName , content) => writeFile(join(publicFolder , fileName) , content)
